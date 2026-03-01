@@ -28,7 +28,7 @@ public class LoginTests extends BaseTest {
         mockAuthFailure();
         Response response = sendRequest(ActionType.LOGIN);
 
-        assertEquals(500, response.statusCode(), "Ожидаем ответ 500 Internal Server Error");//о ТЗ не написано, что ожиидаем, нужно ли проверять?
+        assertEquals(500, response.statusCode(), "Ожидаем ответ 500 Internal Server Error");//В ТЗ не написано, что ожиидаем, нужно ли проверять?
         assertEquals("ERROR", response.jsonPath().getString("result"), "result должен быть ERROR");
         assertEquals("Internal Server Error", response.jsonPath().getString("message"),
                 "message должен быть Internal Server Error");

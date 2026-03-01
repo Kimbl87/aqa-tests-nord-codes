@@ -8,12 +8,14 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import com.test.config.ConnectionConfig;
 import com.test.config.ActionType;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 public class BaseTest {
 
     protected static WireMockServer mockServer;
-//Моки базовый
+
+    //Моки базовый
     @BeforeAll
     static void startMock() {
         mockServer = new WireMockServer(8888);
@@ -53,6 +55,26 @@ public class BaseTest {
     }
 
 
+    //Моки action
+    protected void mockActionSuccess() {
+        stubFor(post(urlEqualTo("/doAction"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"status\":\"done\"}")));
+        System.out.println("Мок doAction: успех");
+    }
+
+    protected void mockActionFailure() {
+        stubFor(post(urlEqualTo("/doAction"))
+                .willReturn(aResponse()
+                        .withStatus(500)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"error\":\"internal error\"}")));
+        System.out.println("Мок doAction: ошибка");
+    }
+
+    //sendRequest и его перегрузки
     protected Response sendRequest(ActionType action) {
         return sendRequest(TokenGenerator.generateValidToken(), action, ConnectionConfig.API_KEY);
     }
@@ -60,8 +82,6 @@ public class BaseTest {
     protected Response sendRequest(String token, ActionType action) {
         return sendRequest(token, action, ConnectionConfig.API_KEY);
     }
-
-
 
 
     protected Response sendRequest(String token, ActionType action, String apiKey) {
