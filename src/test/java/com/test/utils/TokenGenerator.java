@@ -15,4 +15,40 @@ public class TokenGenerator {
         }
         return token.toString();
     }
+
+    public static String generateDigitsOnlyToken() {
+        String digits = "0123456789";
+        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
+        for (int i = 0; i < TOKEN_LENGTH; i++) {
+            token.append(digits.charAt(random.nextInt(digits.length())));
+        }
+        return token.toString();
+    }
+
+    public static String generateAtoFToken() {
+        String atof = "ABCDEF";
+        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
+        for (int i = 0; i < TOKEN_LENGTH; i++) {
+            token.append(atof.charAt(random.nextInt(atof.length())));
+        }
+        return token.toString();
+    }
+
+    public static String generateGtoZToken() {
+        String gtoz = "GHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
+        for (int i = 0; i < TOKEN_LENGTH; i++) {
+            token.append(gtoz.charAt(random.nextInt(gtoz.length())));
+        }
+        return token.toString();
+    }
+
+    public static String generateLowercaseToken() {
+        String lowercase = "abcdef";
+        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
+        for (int i = 0; i < TOKEN_LENGTH; i++) {
+            token.append(lowercase.charAt(random.nextInt(lowercase.length())));
+        }
+        return token.toString();
+    }
 }
