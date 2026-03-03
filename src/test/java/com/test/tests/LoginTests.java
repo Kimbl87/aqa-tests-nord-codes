@@ -39,7 +39,6 @@ public class LoginTests extends BaseTest {
         assertEquals(200, response.statusCode(), "Ожидаем ответ 200 Ок");
         assertEquals("OK", response.jsonPath().getString("result"), "result должен быть OK");
         assertNull(response.jsonPath().getString("message"), "message должен отсутствовать при успехе");
-
     }
 
     @ParameterizedTest(name = "Ошибка авторизации: внешний сервис отвечает {0}")

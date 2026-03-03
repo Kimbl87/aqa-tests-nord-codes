@@ -43,7 +43,6 @@ public class BaseTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"status\":\"success\"}")));
-        System.out.println("  Мок auth: успех");
     }
 
     protected void mockAuthFailure() {
@@ -52,7 +51,6 @@ public class BaseTest {
                         .withStatus(401)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"error\":\"unauthorized\"}")));
-        System.out.println("Мок auth: ошибка");
     }
 
     //Моки action

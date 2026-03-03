@@ -45,7 +45,6 @@ public class CoreTests extends BaseTest {
     }
 
 
-
     @Test
     @DisplayName("Существование эндпоинта")
     @Story("Позитивные сценарии: эндпоинт")
@@ -375,9 +374,7 @@ public class CoreTests extends BaseTest {
         assertTrue(
                 response.jsonPath().getString("message").contains("Missing or invalid API Key"),
                 "Сообщение должно содержать 'Missing or invalid API Key'. Получено: " + response.jsonPath().getString("message")
-
         );
-
     }
 
     @Test

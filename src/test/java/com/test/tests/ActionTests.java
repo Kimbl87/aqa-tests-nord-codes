@@ -1,13 +1,28 @@
 package com.test.tests;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.test.utils.TokenGenerator;
+import com.test.parameterized.ActionErrorCodesProvider;
 import io.qameta.allure.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import com.test.config.ActionType;
+import com.test.config.ConnectionConfig;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+
 
 @Epic("Действие")
 @Feature("ACTION")
@@ -90,4 +105,300 @@ public class ActionTests extends BaseTest {
         assertEquals(String.format("Token '%s' not found", token), response.jsonPath().getString("message"),
                 String.format("Token '%s' not found", token));
     }
+
+    @Test
+    @DisplayName("Несколько ACTION подряд")
+    @Story("Множественные операции")
+    @Description("Проверяем, что можно выполнить несколько ACTION подряд с одним токеном")
+    @Severity(SeverityLevel.NORMAL)
+    public void testMultipleActionsInRow() {
+        mockAuthSuccess();
+        mockActionSuccess();
+        String token = TokenGenerator.generateValidToken();
+
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        for (int i = 0; i < 5; i++) {
+            Response response = sendRequest(token, ActionType.ACTION);
+            assertEquals(200, response.statusCode(),
+                    "ACTION #" + (i + 1) + " должен быть успешным");
+            assertEquals("OK", response.jsonPath().getString("result"));
+        }
+    }
+
+    @Test
+    @DisplayName("ACTION после повторного входа")
+    @Story("Множественные операции")
+    @Description("Проверяем, что после повторного входа ACTION работает")
+    @Severity(SeverityLevel.NORMAL)
+    public void testActionAfterReLogin() {
+        mockAuthSuccess();
+        mockActionSuccess();
+        String token = TokenGenerator.generateValidToken();
+
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+        assertEquals(200, sendRequest(token, ActionType.LOGOUT).statusCode());
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        Response response = sendRequest(token, ActionType.ACTION);
+        assertEquals(200, response.statusCode());
+        assertEquals("OK", response.jsonPath().getString("result"));
+    }
+
+    @Test
+    @DisplayName("ACTION с токеном, залогиненным дважды")
+    @Story("Множественные операции")
+    @Description("Проверяем, что ACTION работает с токеном, который логинился дважды")
+    @Severity(SeverityLevel.MINOR)
+    public void testActionWithTokenLoggedTwice() {
+        mockAuthSuccess();
+        mockActionSuccess();
+        String token = TokenGenerator.generateValidToken();
+
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+        assertEquals(409, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        Response response = sendRequest(token, ActionType.ACTION);
+        assertEquals(200, response.statusCode());
+        assertEquals("OK", response.jsonPath().getString("result"));
+    }
+
+
+    @ParameterizedTest(name = "Ошибка внешнего сервиса: /doAction отвечает {0}")
+    @MethodSource("com.test.parameterized.ActionErrorCodesProvider#provideActionErrorCodes")
+    @DisplayName("Разные коды ошибок внешнего сервиса")
+    @Story("Ошибки внешнего сервиса")
+    @Description("Проверяем, что при разных ошибках от /doAction возвращается 500 ERROR")
+    @Severity(SeverityLevel.NORMAL)
+    public void testActionErrorCodes(int statusCode, String errorBody) {
+        mockAuthSuccess();
+
+        stubFor(post(urlEqualTo("/doAction"))
+                .willReturn(aResponse()
+                        .withStatus(statusCode)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(errorBody)));
+
+        String token = TokenGenerator.generateValidToken();
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        Response response = sendRequest(token, ActionType.ACTION);
+
+        assertEquals(500, response.statusCode(),
+                "При ошибке внешнего сервиса должен быть 500. Получен: " + response.statusCode());
+        assertEquals("ERROR", response.jsonPath().getString("result"),
+                "result должен быть ERROR");
+        assertEquals("Internal Server Error", response.jsonPath().getString("message"),
+                "message должен быть Internal Server Error");
+    }
+
+    @Test
+    @DisplayName("Пустой ответ от /doAction")
+    @Story("Разные типы ответов")
+    @Description("Проверяем, что при пустом ответе от внешнего сервиса возвращается 500 ERROR")
+    @Severity(SeverityLevel.NORMAL)
+    public void testActionEmptyResponse() {
+        mockAuthSuccess();
+
+        stubFor(post(urlEqualTo("/doAction"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody("")));  // пустой ответ
+
+        String token = TokenGenerator.generateValidToken();
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        Response response = sendRequest(token, ActionType.ACTION);
+
+        assertEquals(500, response.statusCode(),
+                "При пустом ответе должен быть 500. Получен: " + response.statusCode());
+        assertEquals("ERROR", response.jsonPath().getString("result"),
+                "result должен быть ERROR");
+        assertEquals("Internal Server Error", response.jsonPath().getString("message"),
+                "message должен быть Internal Server Error");
+    }
+
+    @Test
+    @DisplayName("Некорректный JSON от /doAction")
+    @Story("Разные типы ответов")
+    @Description("Проверяем, что при некорректном JSON от внешнего сервиса возвращается 500 ERROR")
+    @Severity(SeverityLevel.NORMAL)
+    public void testActionInvalidJson() {
+        mockAuthSuccess();
+
+        stubFor(post(urlEqualTo("/doAction"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{invalid: json}")));  // некорректный JSON
+
+        String token = TokenGenerator.generateValidToken();
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        Response response = sendRequest(token, ActionType.ACTION);
+
+        assertEquals(500, response.statusCode(),
+                "При некорректном JSON должен быть 500. Получен: " + response.statusCode());
+        assertEquals("ERROR", response.jsonPath().getString("result"),
+                "result должен быть ERROR");
+        assertEquals("Internal Server Error", response.jsonPath().getString("message"),
+                "message должен быть Internal Server Error");
+    }
+
+
+    @Test
+    @DisplayName("Таймаут внешнего сервиса")
+    @Story("Сетевые проблемы")
+    @Description("Проверяем, что при таймауте /doAction возвращается 500 ERROR")
+    @Severity(SeverityLevel.NORMAL)
+    public void testActionTimeout() {
+        mockAuthSuccess();
+
+        stubFor(post(urlEqualTo("/doAction"))
+                .willReturn(aResponse()
+                        .withFixedDelay(10000)  // 10 секунд задержки
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"status\":\"done\"}")));
+
+        String token = TokenGenerator.generateValidToken();
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        Response response = sendRequest(token, ActionType.ACTION);
+
+        assertEquals(500, response.statusCode(),
+                "При таймауте должен быть 500. Получен: " + response.statusCode());
+        assertEquals("ERROR", response.jsonPath().getString("result"),
+                "result должен быть ERROR");
+        assertEquals("Internal Server Error", response.jsonPath().getString("message"),
+                "message должен быть Internal Server Error");
+    }
+
+    @Test
+    @DisplayName("Внешний сервис недоступен")
+    @Story("Сетевые проблемы")
+    @Description("Проверяем, что при недоступном внешнем сервисе возвращается 500 ERROR")
+    @Severity(SeverityLevel.NORMAL)
+    public void testActionServiceUnavailable() {
+        mockAuthSuccess();
+        String token = TokenGenerator.generateValidToken();
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        mockServer.stop();
+
+        try {
+            Response response = sendRequest(token, ActionType.ACTION);
+
+            assertEquals(500, response.statusCode(),
+                    "При недоступном сервисе должен быть 500. Получен: " + response.statusCode());
+            assertEquals("ERROR", response.jsonPath().getString("result"),
+                    "result должен быть ERROR");
+            assertEquals("Internal Server Error", response.jsonPath().getString("message"),
+                    "message должен быть Internal Server Error");
+        } finally {
+            mockServer.start();
+            WireMock.configureFor(8888);
+        }
+    }
+
+    @Test
+    @DisplayName("ACTION с лишними параметрами")
+    @Story("Параметры запроса")
+    @Description("Проверяем, что лишние параметры игнорируются и запрос успешно обрабатывается")
+    @Severity(SeverityLevel.MINOR)
+    public void testActionWithExtraParameters() {
+        mockAuthSuccess();
+        mockActionSuccess();
+        String token = TokenGenerator.generateValidToken();
+
+        assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+
+        Response response = RestAssured
+                .given()
+                .header("X-Api-Key", ConnectionConfig.API_KEY)
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("token", token)
+                .formParam("action", "ACTION")
+                .formParam("extra1", "value1")
+                .formParam("extra2", "value2")
+                .post(ConnectionConfig.BASE_URL + ConnectionConfig.ENDPOINT);
+
+        assertEquals(200, response.statusCode(),
+                "С лишними параметрами должен быть 200. Получен: " + response.statusCode());
+        assertEquals("OK", response.jsonPath().getString("result"),
+                "result должен быть OK");
+    }
+
+    @Test
+    @DisplayName("5 параллельных ACTION с разными токенами")
+    @Story("Параллельные запросы")
+    @Description("Проверяем, что приложение корректно обрабатывает параллельные запросы ACTION с разными токенами")
+    @Severity(SeverityLevel.NORMAL)
+    public void testConcurrentActionsWithDifferentTokens() throws InterruptedException, ExecutionException {
+        mockAuthSuccess();
+        mockActionSuccess();
+
+        int threadCount = 5;
+        List<String> tokens = new ArrayList<>();
+        for (int i = 0; i < threadCount; i++) {
+            String token = TokenGenerator.generateValidToken();
+            tokens.add(token);
+            assertEquals(200, sendRequest(token, ActionType.LOGIN).statusCode());
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        List<Future<Response>> futures = new ArrayList<>();
+
+        for (String token : tokens) {
+            futures.add(executor.submit(() -> sendRequest(token, ActionType.ACTION)));
+        }
+
+        List<Response> responses = new ArrayList<>();
+        for (Future<Response> future : futures) {
+            responses.add(future.get());
+        }
+
+        executor.shutdown();
+
+        for (Response response : responses) {
+            assertEquals(200, response.statusCode());
+            assertEquals("OK", response.jsonPath().getString("result"));
+        }
+    }
+
+    @Test
+    @DisplayName("5 параллельных ACTION с одинаковым токеном")
+    @Story("Параллельные запросы")
+    @Description("Проверяем поведение при параллельных запросах ACTION с одинаковым токеном")
+    @Severity(SeverityLevel.NORMAL)
+    public void testConcurrentActionsWithSameToken() throws InterruptedException, ExecutionException {
+        mockAuthSuccess();
+        mockActionSuccess();
+
+        String sharedToken = TokenGenerator.generateValidToken();
+        assertEquals(200, sendRequest(sharedToken, ActionType.LOGIN).statusCode());
+
+        int threadCount = 5;
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        List<Future<Response>> futures = new ArrayList<>();
+
+        for (int i = 0; i < threadCount; i++) {
+            futures.add(executor.submit(() -> sendRequest(sharedToken, ActionType.ACTION)));
+        }
+
+        List<Response> responses = new ArrayList<>();
+        for (Future<Response> future : futures) {
+            responses.add(future.get());
+        }
+
+        executor.shutdown();
+
+        for (Response response : responses) {
+            assertEquals(200, response.statusCode());
+            assertEquals("OK", response.jsonPath().getString("result"));
+        }
+    }
+
+
+
 }
