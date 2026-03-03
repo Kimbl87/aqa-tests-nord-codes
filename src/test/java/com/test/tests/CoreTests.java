@@ -12,14 +12,13 @@ import com.test.utils.TokenGenerator;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Epic("Инфраструктура")
-@Feature("Базовые проверки")
+@Feature("Core")
 @DisplayName("Тесты доступности и базовых настроек")
 public class CoreTests extends BaseTest {
 
-
     @Test
     @DisplayName("Доступность хоста")
-    @Story("Позитивные сценарии: хост и порт")
+    @Story("Позитивные сценарии: Core")
     @Description("Проверяем, что хост приложения доступен по сети")
     @Severity(SeverityLevel.BLOCKER)
     public void testHostReachable() {
@@ -33,7 +32,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Правильность порта")
-    @Story("Позитивные сценарии: хост и порт")
+    @Story("Позитивные сценарии: Core")
     @Description("Проверяем, что приложение слушает правильный порт")
     @Severity(SeverityLevel.BLOCKER)
     public void testCorrectPort() {
@@ -44,10 +43,9 @@ public class CoreTests extends BaseTest {
                 "Базовый URL должен использовать порт " + port);
     }
 
-
     @Test
     @DisplayName("Существование эндпоинта")
-    @Story("Позитивные сценарии: эндпоинт")
+    @Story("Позитивные сценарии: Core")
     @Description("Проверяем, что эндпоинт /endpoint существует")
     @Severity(SeverityLevel.BLOCKER)
     public void testEndpointExists() {
@@ -64,10 +62,9 @@ public class CoreTests extends BaseTest {
                 "Эндпоинт " + ConnectionConfig.ENDPOINT + " не найден. Код: " + response.statusCode());
     }
 
-
     @Test
     @DisplayName("Метод POST")
-    @Story("Позитивные сценарии: HTTP методы")
+    @Story("Позитивные сценарии: Core")
     @Description("Проверяем, что эндпоинт принимает POST запросы и возвращает 200")
     @Severity(SeverityLevel.CRITICAL)
     public void testPostMethod() {
@@ -90,7 +87,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Метод GET")
-    @Story("Негативные сценарии: HTTP методы")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что эндпоинт НЕ принимает GET запросы")
     @Severity(SeverityLevel.NORMAL)
     public void testGetMethodNotAllowed() {
@@ -105,7 +102,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Метод PUT")
-    @Story("Негативные сценарии: HTTP методы")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что PUT метод не поддерживается")
     @Severity(SeverityLevel.NORMAL)
     public void testPutMethodNotAllowed() {
@@ -124,7 +121,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Метод DELETE")
-    @Story("Негативные сценарии: HTTP методы")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что DELETE метод не поддерживается")
     @Severity(SeverityLevel.NORMAL)
     public void testDeleteMethodNotAllowed() {
@@ -143,7 +140,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Метод PATCH")
-    @Story("Негативные сценарии: HTTP методы")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что PATCH метод не поддерживается")
     @Severity(SeverityLevel.NORMAL)
     public void testPatchMethodNotAllowed() {
@@ -162,7 +159,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Метод OPTIONS")
-    @Story("Негативные сценарии: HTTP методы")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что OPTIONS метод не поддерживается")
     @Severity(SeverityLevel.NORMAL)
     public void testOptionsMethod() {
@@ -177,7 +174,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Метод HEAD")
-    @Story("Негативные сценарии: HTTP методы")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что HEAD метод не поддерживается")
     @Severity(SeverityLevel.NORMAL)
     public void testHeadMethod() {
@@ -192,7 +189,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Accept заголовок (JSON)")
-    @Story("Позитивные сценарии: заголовки")
+    @Story("Позитивные сценарии: Core")
     @Description("Проверяем, что приложение отдает JSON")
     @Severity(SeverityLevel.NORMAL)
     public void testAcceptHeader() {
@@ -212,7 +209,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Отсутствие Content-Type")
-    @Story("Негативные сценарии: заголовки")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем поведение при отсутствии Content-Type")
     @Severity(SeverityLevel.NORMAL)
     public void testMissingContentType() {
@@ -230,7 +227,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Content-Type XML")
-    @Story("Негативные сценарии: заголовки")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что XML не принимается")
     @Severity(SeverityLevel.NORMAL)
     public void testWrongContentTypeXml() {
@@ -248,7 +245,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Content-Type text/plain")
-    @Story("Негативные сценарии: заголовки")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что text/plain не принимается")
     @Severity(SeverityLevel.NORMAL)
     public void testWrongContentTypeText() {
@@ -266,7 +263,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Accept заголовок (XML)")
-    @Story("Негативные сценарии: заголовки")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что приложение не отдает XML")
     @Severity(SeverityLevel.NORMAL)
     public void testWrongAcceptHeader() {
@@ -284,11 +281,9 @@ public class CoreTests extends BaseTest {
                 "Accept XML должен возвращать 406 Not Acceptable. Получен: " + response.statusCode());
     }
 
-    // ===== X-API-KEY =====
-
     @Test
     @DisplayName("X-Api-Key корректный")
-    @Story("Позитивные сценарии: X-Api-Key")
+    @Story("Позитивные сценарии: Core")
     @Description("Проверяем, что с правильным ключом запрос проходит")
     @Severity(SeverityLevel.CRITICAL)
     public void testValidApiKey() {
@@ -308,7 +303,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("X-Api-Key отсутствует")
-    @Story("Негативные сценарии: X-Api-Key")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что без API ключа запрос отклоняется")
     @Severity(SeverityLevel.CRITICAL)
     public void testMissingApiKey() {
@@ -331,7 +326,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("X-Api-Key пустой")
-    @Story("Негативные сценарии: X-Api-Key")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что с пустым API ключом запрос отклоняется")
     @Severity(SeverityLevel.CRITICAL)
     public void testEmptyApiKey() {
@@ -355,14 +350,14 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("X-Api-Key неверный (похожий)")
-    @Story("Негативные сценарии: X-Api-Key")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что ключ, похожий на правильный, но не совпадающий, не принимается")
     @Severity(SeverityLevel.CRITICAL)
     public void testInvalidApiKey() {
         String token = TokenGenerator.generateValidToken();
         Response response = RestAssured
                 .given()
-                .header("X-Api-Key", "qazWSXedc1")  // похожий ключ
+                .header("X-Api-Key", "qazWSXedc1")
                 .contentType("application/x-www-form-urlencoded")
                 .formParam("token", token)
                 .formParam("action", "LOGIN")
@@ -379,14 +374,14 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("X-Api-Key с другим регистром")
-    @Story("Негативные сценарии: X-Api-Key")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что ключ чувствителен к регистру")
     @Severity(SeverityLevel.NORMAL)
     public void testApiKeyCaseSensitive() {
         String token = TokenGenerator.generateValidToken();
         Response response = RestAssured
                 .given()
-                .header("X-Api-Key", "QAZWSXEDC")  // верхний регистр
+                .header("X-Api-Key", "QAZWSXEDC")
                 .contentType("application/x-www-form-urlencoded")
                 .formParam("token", token)
                 .formParam("action", "LOGIN")
@@ -397,11 +392,73 @@ public class CoreTests extends BaseTest {
         assertEquals("ERROR", response.jsonPath().getString("result"));
     }
 
-    // ===== ФОРМАТ ОТВЕТА =====
+    @Test
+    @DisplayName("Дублирование заголовка X-Api-Key")
+    @Story("Негативные сценарии: Core")
+    @Description("Проверяем, что дублирующиеся заголовки вызывают ошибку 400")
+    @Severity(SeverityLevel.NORMAL)
+    public void testDuplicateApiKeyHeader() {
+        String token = TokenGenerator.generateValidToken();
+
+        Response response = RestAssured
+                .given()
+                .header("X-Api-Key", ConnectionConfig.API_KEY)
+                .header("X-Api-Key", "another-key")
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("token", token)
+                .formParam("action", "LOGIN")
+                .post(ConnectionConfig.BASE_URL + ConnectionConfig.ENDPOINT);
+
+        assertEquals(400, response.statusCode());
+        assertEquals("ERROR", response.jsonPath().getString("result"));
+    }
+
+    @Test
+    @DisplayName("Дублирование параметра action")
+    @Story("Негативные сценарии: Core")
+    @Description("Проверяем, что дублирующиеся параметры action вызывают ошибку 400")
+    @Severity(SeverityLevel.NORMAL)
+    public void testDuplicateActionParameter() {
+        String token = TokenGenerator.generateValidToken();
+
+        Response response = RestAssured
+                .given()
+                .header("X-Api-Key", ConnectionConfig.API_KEY)
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("token", token)
+                .formParam("action", "LOGIN")
+                .formParam("action", "ACTION")
+                .post(ConnectionConfig.BASE_URL + ConnectionConfig.ENDPOINT);
+
+        assertEquals(400, response.statusCode());
+        assertEquals("ERROR", response.jsonPath().getString("result"));
+    }
+
+    @Test
+    @DisplayName("Дублирование параметра token")
+    @Story("Негативные сценарии: Core")
+    @Description("Проверяем, что дублирующиеся параметры token вызывают ошибку 400")
+    @Severity(SeverityLevel.NORMAL)
+    public void testDuplicateTokenParameter() {
+        String token = TokenGenerator.generateValidToken();
+        String duplicateToken = TokenGenerator.generateValidToken();
+
+        Response response = RestAssured
+                .given()
+                .header("X-Api-Key", ConnectionConfig.API_KEY)
+                .contentType("application/x-www-form-urlencoded")
+                .formParam("token", token)
+                .formParam("token", duplicateToken)
+                .formParam("action", "LOGIN")
+                .post(ConnectionConfig.BASE_URL + ConnectionConfig.ENDPOINT);
+
+        assertEquals(400, response.statusCode());
+        assertEquals("ERROR", response.jsonPath().getString("result"));
+    }
 
     @Test
     @DisplayName("Структура успешного ответа")
-    @Story("Позитивные сценарии: формат ответа")
+    @Story("Позитивные сценарии: Core")
     @Description("Проверяем, что успешный ответ содержит поле result и не содержит message")
     @Severity(SeverityLevel.NORMAL)
     public void testSuccessResponseStructure() {
@@ -426,7 +483,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Структура ответа с ошибкой")
-    @Story("Негативные сценарии: формат ответа")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что ответ об ошибке содержит поля result и message")
     @Severity(SeverityLevel.NORMAL)
     public void testErrorResponseStructure() {
@@ -448,11 +505,9 @@ public class CoreTests extends BaseTest {
                 "В ответе должно быть поле message. Получено: " + response.asString());
     }
 
-    // ===== ПРОИЗВОДИТЕЛЬНОСТЬ =====
-
     @Test
     @DisplayName("Время ответа")
-    @Story("Позитивные сценарии: производительность")
+    @Story("Позитивные сценарии: Core")
     @Description("Проверяем, что приложение отвечает в разумное время")
     @Severity(SeverityLevel.NORMAL)
     public void testResponseTime() {
@@ -476,13 +531,11 @@ public class CoreTests extends BaseTest {
                 "Время ответа превышает 5 секунд: " + responseTime + "ms");
         assertEquals(200, response.statusCode(),
                 "Сервер должен вернуть 200. Получен: " + response.statusCode());
-
-        System.out.println("Время ответа: " + responseTime + "ms");
     }
 
     @Test
     @DisplayName("Пустой запрос")
-    @Story("Негативные сценарии: формат запроса")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что пустой POST запрос обрабатывается")
     @Severity(SeverityLevel.NORMAL)
     public void testEmptyRequest() {
@@ -500,7 +553,7 @@ public class CoreTests extends BaseTest {
 
     @Test
     @DisplayName("Запрос с лишними параметрами")
-    @Story("Негативные сценарии: формат запроса")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем, что лишние параметры игнорируются или вызывают ошибку")
     @Severity(SeverityLevel.MINOR)
     public void testExtraParameters() {
@@ -515,13 +568,13 @@ public class CoreTests extends BaseTest {
                 .formParam("extra2", "value2")
                 .post(ConnectionConfig.BASE_URL + ConnectionConfig.ENDPOINT);
 
-        assertTrue(response.statusCode() == 200 || response.statusCode() == 400,
-                "Лишние параметры должны либо игнорироваться (200), либо вызывать ошибку (400). Получен: " + response.statusCode());
+        assertTrue(response.statusCode() == 400,
+                "Лишние параметры должны вызывать ошибку (400). Получен: " + response.statusCode());
     }
 
     @Test
     @DisplayName("Запрос с дублирующимися параметрами")
-    @Story("Негативные сценарии: формат запроса")
+    @Story("Негативные сценарии: Core")
     @Description("Проверяем обработку дублирующихся параметров")
     @Severity(SeverityLevel.MINOR)
     public void testDuplicateParameters() {

@@ -16,19 +16,16 @@ public class BaseTest {
 
     protected static WireMockServer mockServer;
 
-    //Моки базовый
     @BeforeAll
     static void startMock() {
         mockServer = new WireMockServer(8888);
         mockServer.start();
         WireMock.configureFor(8888);
-        System.out.println("Mock запущен");
     }
 
     @AfterAll
     static void stopMock() {
         mockServer.stop();
-        System.out.println("Mock остановлен");
     }
 
     @BeforeEach
@@ -60,7 +57,6 @@ public class BaseTest {
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"status\":\"done\"}")));
-        System.out.println("Мок doAction: успех");
     }
 
     protected void mockActionFailure() {
@@ -69,10 +65,8 @@ public class BaseTest {
                         .withStatus(500)
                         .withHeader("Content-Type", "application/json")
                         .withBody("{\"error\":\"internal error\"}")));
-        System.out.println("Мок doAction: ошибка");
     }
 
-    // ===== УНИВЕРСАЛЬНЫЙ МЕТОД ДЛЯ ВСЕХ HTTP ЗАПРОСОВ =====
     private RequestSpecification baseRequest(String apiKey) {
         return RestAssured
                 .given()
@@ -80,7 +74,7 @@ public class BaseTest {
                 .contentType("application/x-www-form-urlencoded");
     }
 
-    // Основной метод с указанием HTTP метода (полная версия)
+
     protected Response sendRequestWithMethod(String httpMethod, String token, ActionType action, String apiKey) {
         RequestSpecification request = baseRequest(apiKey)
                 .formParam("token", token)
@@ -127,7 +121,6 @@ public class BaseTest {
         }
     }
 
-    // Перегрузки для удобства
     protected Response sendRequestWithMethod(String httpMethod, ActionType action) {
         return sendRequestWithMethod(httpMethod, TokenGenerator.generateValidToken(), action, ConnectionConfig.API_KEY);
     }
@@ -140,7 +133,6 @@ public class BaseTest {
         return sendRequestWithMethod(httpMethod, TokenGenerator.generateValidToken(), action, apiKey);
     }
 
-    // Для обратной совместимости (POST по умолчанию) - имена методов оставляем без изменений
     protected Response sendRequest(ActionType action) {
         return sendRequestWithMethod("POST", action);
     }

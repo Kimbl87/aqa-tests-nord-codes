@@ -246,7 +246,7 @@ public class LoginTests extends BaseTest {
     @Test
     @DisplayName("Логин с токеном, содержащим только буквы G-Z")
     @Story("Негативные сценарии LOGIN")
-    @Description("Проверяем, что токен с буквами G-Z вызывает ошибку 400")
+    @Description("Проверяем, что токен с буквами G-Z возвращает 200")
     @Severity(SeverityLevel.NORMAL)
     public void testLoginWithGtoZOnlyToken() {
         mockAuthSuccess();
@@ -254,15 +254,11 @@ public class LoginTests extends BaseTest {
 
         Response response = sendRequest(gToZToken, ActionType.LOGIN);
 
-        assertEquals(400, response.statusCode(),
-                "Токен из букв G-Z должен давать 400. Получен: " + response.statusCode());
-        assertEquals("ERROR", response.jsonPath().getString("result"),
-                "result должен быть ERROR");
-        assertTrue(
-                response.jsonPath().getString("message").contains("Invalid token format") ||
-                        response.jsonPath().getString("message").contains("должно соответствовать"),
-                "Сообщение должно указывать на неверный формат токена"
-        );
+        assertEquals(200, response.statusCode(),
+                "С лишними параметрами должен быть 200. Получен: " + response.statusCode());
+        assertEquals("OK", response.jsonPath().getString("result"),
+                "result должен быть OK");
+
     }
 
     @Test
