@@ -1,58 +1,89 @@
 package com.test.utils;
 
+import io.qameta.allure.Attachment;
+
 import java.security.SecureRandom;
 import java.util.Random;
 
 public class TokenGenerator {
-    /*В требованиях указано token - строка длиной 32 символа, состоящая только из символов A-Z0-9, но в реализации
-     A-F0-9 и если сгенерировать токен по требованиям - большинство тестов упадёт из-за непрошедший авторизации
-    */
     private static final String CHARS = "0123456789ABCDEF";
-
     private static final int TOKEN_LENGTH = 32;
     private static final Random random = new SecureRandom();
 
     public static String generateValidToken() {
-        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
-        for (int i = 0; i < TOKEN_LENGTH; i++) {
-            token.append(CHARS.charAt(random.nextInt(CHARS.length())));
+        return generateValidToken(true);
+    }
+
+    public static String generateValidToken(boolean attachToReport) {
+        String token = generateTokenFromCharset(CHARS);
+        if (attachToReport) {
+            attachToken(token);
         }
-        return token.toString();
+        return token;
     }
 
     public static String generateDigitsOnlyToken() {
+        return generateDigitsOnlyToken(true);
+    }
+
+    public static String generateDigitsOnlyToken(boolean attachToReport) {
         String digits = "0123456789";
-        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
-        for (int i = 0; i < TOKEN_LENGTH; i++) {
-            token.append(digits.charAt(random.nextInt(digits.length())));
+        String token = generateTokenFromCharset(digits);
+        if (attachToReport) {
+            attachToken(token);
         }
-        return token.toString();
+        return token;
     }
 
     public static String generateAtoFToken() {
+        return generateAtoFToken(true);
+    }
+
+    public static String generateAtoFToken(boolean attachToReport) {
         String atof = "ABCDEF";
-        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
-        for (int i = 0; i < TOKEN_LENGTH; i++) {
-            token.append(atof.charAt(random.nextInt(atof.length())));
+        String token = generateTokenFromCharset(atof);
+        if (attachToReport) {
+            attachToken(token);
         }
-        return token.toString();
+        return token;
     }
 
     public static String generateGtoZToken() {
+        return generateGtoZToken(true);
+    }
+
+    public static String generateGtoZToken(boolean attachToReport) {
         String gtoz = "GHIJKLMNOPQRSTUVWXYZ";
+        String token = generateTokenFromCharset(gtoz);
+        if (attachToReport) {
+            attachToken(token);
+        }
+        return token;
+    }
+
+    public static String generateLowercaseToken() {
+        return generateLowercaseToken(true);
+    }
+
+    public static String generateLowercaseToken(boolean attachToReport) {
+        String lowercase = "abcdef";
+        String token = generateTokenFromCharset(lowercase);
+        if (attachToReport) {
+            attachToken(token);
+        }
+        return token;
+    }
+
+    private static String generateTokenFromCharset(String charset) {
         StringBuilder token = new StringBuilder(TOKEN_LENGTH);
         for (int i = 0; i < TOKEN_LENGTH; i++) {
-            token.append(gtoz.charAt(random.nextInt(gtoz.length())));
+            token.append(charset.charAt(random.nextInt(charset.length())));
         }
         return token.toString();
     }
 
-    public static String generateLowercaseToken() {
-        String lowercase = "abcdef";
-        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
-        for (int i = 0; i < TOKEN_LENGTH; i++) {
-            token.append(lowercase.charAt(random.nextInt(lowercase.length())));
-        }
-        return token.toString();
+    @Attachment(value = "Сгенерированный токен", type = "text/plain")
+    private static String attachToken(String token) {
+        return token;
     }
 }
